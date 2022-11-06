@@ -27,6 +27,8 @@ Package:
 Run:
 
 ```bash
+git clone https://github.com/Yekong995/YtDownloader.git
+cd YtDownloader
 python3 main.py
 ```
 
@@ -56,12 +58,16 @@ Package:
 Run:
 
 ```bash
+git clone https://github.com/Yekong995/YtDownloader.git
+cd YtDownloader
 python main.py
 ```
 
 or
 
 ```bash
+git clone https://github.com/Yekong995/YtDownloader.git
+cd YtDownloader
 py main.py
 ```
 
