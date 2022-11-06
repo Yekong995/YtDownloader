@@ -12,10 +12,10 @@
 
 Requirements:
 
-| Tool    | Command                        |
-| ------- | ------------------------------ |
-| Python3 | `sudo apt |install python3 -y` |
-| pip3    | `sudo apt |install python3 -y` |
+| Tool    | Command                       |
+| ------- | ----------------------------- |
+| Python3 | `sudo apt install python3 -y` |
+| pip3    | `sudo apt install python3 -y` |
 
 Package:
 
