@@ -50,11 +50,24 @@ async def download(url, audio_only=False):
             ytdl.download([url])
         log.info(f"Done downloading {filename}")
 
+async def search(name, mode='m'):
+    ytdl = YoutubeDL(ytdl_format_options)
+    info = ytdl.extract_info(f"ytsearch:{name}", download=False)['entries'][0]
+    log.info(f"Found: {info['title']}")
+    if mode == 'm':
+        await download(info['webpage_url'], audio_only=True)
+    elif mode == 'v':
+        await download(info['webpage_url'])
+    else:
+        log.critical("Invalid mode")
+        return
+
 async def main():
     while True:
         print("""
 [1] Download music
 [2] Download video
+[3] Search & Download
 [Q] Quit
         """)
         choice = input("Enter the option: ")
@@ -64,6 +77,10 @@ async def main():
         elif choice == "2":
             link = input("Enter the link: ")
             await download(link)
+        elif choice == "3":
+            name = input("Enter the name: ")
+            m3orm4 = input("Do you want to download music or video? (m/v): ")
+            await search(name, mode=m3orm4)
         elif choice == "Q" or choice == "q":
             loop.stop()
             break
