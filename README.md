@@ -14,8 +14,8 @@ Requirements:
 
 |Tool  |Command|
 |--------|-----------|
-|Python3|`sudo apt update && sudo apt full-upgrade -y && sudo apt |install python3 -y` |
-|pip3|`sudo apt update && sudo apt full-upgrade -y && sudo apt install python3-pip -y` |
+|Python3| `sudo apt update && sudo apt full-upgrade -y && sudo apt |install python3 -y` |
+|pip3| `sudo apt update && sudo apt full-upgrade -y && sudo apt install python3-pip -y` |
 
 Package:
 
