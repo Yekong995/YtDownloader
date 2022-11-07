@@ -34,6 +34,7 @@ class MainUI(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("YtDownloader")
+        self.setFixedSize(self.size())
         self.ytdl_format_options = {
             'format': 'bestaudio/best',
             'outtmpl': save_path + '\\' + '%(title)s.%(ext)s',
@@ -74,6 +75,11 @@ class MainUI(QMainWindow):
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
             self.ui.progressBar.setValue(15)
+            self.ui.text.setDisabled(True)
+            self.ui.audioCheck.setDisabled(True)
+            self.ui.downBtn.setDisabled(True)
+            self.ui.dsBtn.setDisabled(True)
+            self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
     def search(self):
@@ -94,11 +100,20 @@ class MainUI(QMainWindow):
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
             self.ui.progressBar.setValue(15)
+            self.ui.text.setDisabled(True)
+            self.ui.audioCheck.setDisabled(True)
+            self.ui.downBtn.setDisabled(True)
+            self.ui.dsBtn.setDisabled(True)
+            self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
     def download_finished(self):
         self.ui.progressBar.setValue(100)
         QMessageBox.information(self, "Download", "Download completed")
+        self.ui.text.setDisabled(False)
+        self.ui.audioCheck.setDisabled(False)
+        self.ui.downBtn.setDisabled(False)
+        self.ui.dsBtn.setDisabled(False)
         self.ui.progressBar.setValue(0)
 
 
