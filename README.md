@@ -103,3 +103,22 @@ New Package:
 | Package | Command                       |
 | ------- | ----------------------------- |
 | PyQt5   | `pip install --upgrade pyqt5` |
+
+
+
+Run:
+
+```bash	
+git clone https://github.com/Yekong995/YtDownloader.git
+cd YtDownloader
+python main_gui.py
+```
+
+or
+
+```bash
+git clone https://github.com/Yekong995/YtDownloader.git
+cd YtDownloader
+py main_gui.py
+```
+
