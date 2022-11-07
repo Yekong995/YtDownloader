@@ -1,8 +1,9 @@
 # YtDownloader
 
-- [Installation](#Installation)
+- [Installation (Terminal)](#Installation (Terminal))
+- [Installation (Gui)](#Installation (Gui))
 
-## Installation
+## Installation (Terminal)
 
 - [Linux](#Linux)
 
