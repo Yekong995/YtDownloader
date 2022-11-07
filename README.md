@@ -18,12 +18,16 @@ Requirements:
 | Python3 | `sudo apt install python3 -y`     |
 | pip3    | `sudo apt install python3-pip -y` |
 
+
+
 Package:
 
 | Package    | Command |
 | ---------- | --------------- |
 | youtube-dl | `pip3 install --upgrade youtube-dl` |
 | loguru     | `pip3 install --upgrade loguru` |
+
+
 
 Run:
 
@@ -49,12 +53,16 @@ After tick `Add python.exe to PATH` press `Install Now` or `Customize installati
 
 > **NOTE: If you chose `Customize installation` make sure you have install pip**
 
+
+
 Package:
 
 | Package    | Command                            |
 | ---------- | ---------------------------------- |
 | youtube-dl | `pip install --upgrade youtube-dl` |
 | loguru     | `pip install --upgrade loguru`     |
+
+
 
 Run:
 
@@ -80,11 +88,15 @@ Requirements:
 
 You can refer to [here](#Installation-terminal) (Requirements)
 
+
+
 Package:
 
 You can also refer to [here](#Installation-Terminal) (Package)
 
 > **NOTE: Package `loguru` can ignore**
+
+
 
 New Package:
 
