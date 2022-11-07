@@ -5,6 +5,7 @@ from gui import Ui_MainWindow
 from pathlib import Path
 from platform import system
 from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QIcon
 
 save_path = str(Path.home() / "Downloads")
 user_os = system()
@@ -35,6 +36,7 @@ class MainUI(QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("YtDownloader")
         self.setFixedSize(self.size())
+        self.setWindowIcon(QIcon("App.ico"))
         self.ytdl_format_options = {
             'format': 'bestaudio/best',
             'outtmpl': save_path + '\\' + '%(title)s.%(ext)s',
