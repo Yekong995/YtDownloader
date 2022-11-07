@@ -72,5 +72,22 @@ cd YtDownloader
 py main.py
 ```
 
+## Installation (Gui)
 
+### Windows
 
+Requirements:
+
+You can refer to [here](#Installation-terminal) (Requirements)
+
+Package:
+
+You can also refer to [here](#Installation-Terminal) (Package)
+
+> **NOTE: Package `loguru` can ignore**
+
+New Package:
+
+| Package | Command                       |
+| ------- | ----------------------------- |
+| PyQt5   | `pip install --upgrade pyqt5` |
