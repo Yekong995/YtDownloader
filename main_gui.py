@@ -2,12 +2,10 @@ from youtube_dl import YoutubeDL
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 from sys import argv, exit
 from gui import Ui_MainWindow
-from pathlib import Path
 from platform import system
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 
-save_path = str(Path.home() / "Downloads")
 user_os = system()
 
 class Background(QThread):
@@ -26,7 +24,7 @@ class Background(QThread):
             ydl.download([text])
         else:
             ydl.download([self.url])
-    
+
 
 class MainUI(QMainWindow):
 
@@ -39,7 +37,7 @@ class MainUI(QMainWindow):
         self.setWindowIcon(QIcon("App.ico"))
         self.ytdl_format_options = {
             'format': 'bestaudio/best',
-            'outtmpl': save_path + '\\' + '%(title)s.%(ext)s',
+            'outtmpl': '%(title)s.%(ext)s',
             'restrictfilenames': True,
             'noplaylist': True,
             'nocheckcertificate': True,
@@ -52,11 +50,14 @@ class MainUI(QMainWindow):
             'merge_output_format': 'mp3'
         }
         if user_os == "Windows":
-            self.ytdl_format_options['outtmpl'] = save_path + '\\' + '%(title)s.%(ext)s'
+            from os import environ
+            self.ytdl_format_options['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
         elif user_os == "Linux":
-            self.ytdl_format_options['outtmpl'] = save_path + '/' + '%(title)s.%(ext)s'
+            from os.path import expanduser
+            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
         else:
-            self.ytdl_format_options['outtmpl'] = save_path + '/' + '%(title)s.%(ext)s'
+            from os.path import expanduser
+            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
             QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
 
     def download(self):
