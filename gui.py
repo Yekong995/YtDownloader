@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(355, 182)
+        MainWindow.resize(355, 198)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.text = QtWidgets.QLineEdit(self.centralwidget)
@@ -34,6 +34,8 @@ class Ui_MainWindow(object):
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         MainWindow.setCentralWidget(self.centralwidget)
+        self.actionLoad = QtWidgets.QAction(MainWindow)
+        self.actionLoad.setObjectName("actionLoad")
 
         self.downBtn.clicked.connect(MainWindow.download)
         self.dsBtn.clicked.connect(MainWindow.search)
@@ -47,3 +49,4 @@ class Ui_MainWindow(object):
         self.downBtn.setText(_translate("MainWindow", "Download"))
         self.dsBtn.setText(_translate("MainWindow", "Search and Download"))
         self.audioCheck.setText(_translate("MainWindow", "Only Audio"))
+        self.actionLoad.setText(_translate("MainWindow", "Load"))
