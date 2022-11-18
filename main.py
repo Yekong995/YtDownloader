@@ -1,13 +1,11 @@
 from youtube_dl import YoutubeDL
 from loguru import logger as log
-from pathlib import Path
 import asyncio
 import platform
 
-save_path = str(Path.home() / "Downloads")
 ytdl_format_options = {
     'format': 'bestaudio/best',
-    'outtmpl': save_path + '\\' + '%(title)s.%(ext)s',
+    'outtmpl': '%(title)s.%(ext)s',
     'restrictfilenames': True,
     'noplaylist': True,
     'nocheckcertificate': True,
@@ -21,12 +19,15 @@ ytdl_format_options = {
 }
 
 if platform.system() == "Windows":
-    ytdl_format_options['outtmpl'] = save_path + '\\' + '%(title)s.%(ext)s'
+    from os import environ
+    ytdl_format_options['outtmpl'] = environ['USERPROFILE'] + '\\' + '%(title)s.%(ext)s'
 elif platform.system() == "Linux":
-    ytdl_format_options['outtmpl'] = save_path + '/' + '%(title)s.%(ext)s'
+    from os.path import expanduser
+    ytdl_format_options['outtmpl'] = expanduser('~') + '/' + '%(title)s.%(ext)s'
 else:
+    from os.path import expanduser
     log.warning('Cannot determine OS, defaulting to Linux')
-    ytdl_format_options['outtmpl'] = save_path + '/' + '%(title)s.%(ext)s'
+    ytdl_format_options['outtmpl'] = expanduser('~') + '/' + '%(title)s.%(ext)s'
 
 async def download(url, audio_only=False):
     if url == "":
