@@ -111,7 +111,7 @@ Run:
 ```bash	
 git clone https://github.com/Yekong995/YtDownloader.git
 cd YtDownloader
-python main_gui.py
+python main(pyqt).py
 ```
 
 or
@@ -119,6 +119,6 @@ or
 ```bash
 git clone https://github.com/Yekong995/YtDownloader.git
 cd YtDownloader
-py main_gui.py
+py main(pyqt).py
 ```
 
