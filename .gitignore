@@ -5,3 +5,4 @@ dist/
 *spec
 setup.py
 virtual/
+test.py
