@@ -1,5 +1,8 @@
 from youtube_dl import YoutubeDL
 from platform import system
+from tkinter.messagebox import showerror
+from os import remove
+from re import sub, compile
 import customtkinter
 import multiprocessing
 
@@ -38,6 +41,20 @@ else:
     from os.path import expanduser
     ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
 
+def rename_file(source:str, name:str):
+    source_file = source
+    new_name = source.split("\\")[-1]
+    new_name = new_name.replace(new_name.split(".")[0], name)
+    new_name = sub(compile(r"[<>:\"/\\|?*]"), "", new_name)
+    new_name = new_name.replace(" ", "_")
+    new_name = source.replace(source.split("\\")[-1], new_name)
+    with open(source_file, "rb") as f:
+        with open(new_name, "wb") as f2:
+            f2.write(f.read())
+            f2.close()
+        f.close()
+    remove(source_file)
+
 def download(url, ytdl_opts, search=False, only_audio=False):
     if only_audio:
         ytdl_opts['format'] = 'bestaudio/best'
@@ -49,8 +66,15 @@ def download(url, ytdl_opts, search=False, only_audio=False):
     if search:
         info = YoutubeDL(ytdl_opts).extract_info(url, download=False)
         text = info['entries'][0]['webpage_url']
+        name = info['entries'][0]['title']
+        info = ydl.extract_info(text, download=False)
+        filename = ydl.prepare_filename(info)
         ydl.download([text])
+        rename_file(filename, name)
     else:
+        info = YoutubeDL(ytdl_opts).extract_info(url, download=False)
+        name = info['title']
+        filename = ydl.prepare_filename(info)
         ydl.download([url])
 
 def thread_download(url, ytdl_opts, search=False):
@@ -68,6 +92,8 @@ def thread_download(url, ytdl_opts, search=False):
 
     while p.is_alive():
         root.update()
+    if p.exitcode != 0:
+        showerror("Error", "An error occurred while downloading the video.")
     btn_down_search.configure(state="normal")
     btn_down_video.configure(state="normal")
     btn_down_search.configure(text="Search & Download")

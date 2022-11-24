@@ -1,5 +1,8 @@
 from youtube_dl import YoutubeDL
+from pathlib import Path
 from loguru import logger as log
+from os import remove
+from re import sub, compile
 import asyncio
 import platform
 
@@ -20,14 +23,27 @@ ytdl_format_options = {
 
 if platform.system() == "Windows":
     from os import environ
-    ytdl_format_options['outtmpl'] = environ['USERPROFILE'] + '\\' + '%(title)s.%(ext)s'
+    ytdl_format_options['outtmpl'] = environ['USERPROFILE'] + '\\Downloads\\' + '%(title)s.%(ext)s'
 elif platform.system() == "Linux":
     from os.path import expanduser
-    ytdl_format_options['outtmpl'] = expanduser('~') + '/' + '%(title)s.%(ext)s'
+    ytdl_format_options['outtmpl'] = expanduser('~') + '/Downloads/' + '%(title)s.%(ext)s'
 else:
     from os.path import expanduser
     log.warning('Cannot determine OS, defaulting to Linux')
-    ytdl_format_options['outtmpl'] = expanduser('~') + '/' + '%(title)s.%(ext)s'
+    ytdl_format_options['outtmpl'] = expanduser('~') + '/Downloads/' + '%(title)s.%(ext)s'
+
+async def rename_file(source:str, name:str):
+    log.info(f"Renaming {source} to {name}")
+    source_file = source
+    new_name = source.split("\\")[-1]
+    new_name = new_name.replace(new_name.split(".")[0], name)
+    new_name = source.replace(source.split("\\")[-1], new_name)
+    with open(source_file, 'rb') as f:
+        with open(new_name, 'wb') as f1:
+            f1.write(f.read())
+            f1.close()
+        f.close()
+    remove(source_file)
 
 async def download(url, audio_only=False):
     if url == "":
@@ -43,6 +59,7 @@ async def download(url, audio_only=False):
         ytdl = YoutubeDL(ytdl_format_options)
         info = ytdl.extract_info(url, download=False)
         filename = ytdl.prepare_filename(info)
+        name = sub(compile(r"[^\w\s]"), "", info['title'])
         log.info(f"Downloading {filename}")
         if Path(filename).exists():
             log.warning(f"File {filename} already exists")
@@ -50,6 +67,8 @@ async def download(url, audio_only=False):
         else:
             ytdl.download([url])
         log.info(f"Done downloading {filename}")
+        await rename_file(filename, name)
+        log.info(f"Done renaming {filename}")
 
 async def search(name, mode='m'):
     ytdl = YoutubeDL(ytdl_format_options)
