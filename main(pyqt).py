@@ -1,12 +1,28 @@
 from youtube_dl import YoutubeDL
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 from sys import argv, exit
+from re import sub, compile
+from os import remove
 from gui import Ui_MainWindow
 from platform import system
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 
 user_os = system()
+
+def rename_file(source:str, name:str):
+    source_file = source
+    new_name = source.split("\\")[-1]
+    new_name = new_name.replace(new_name.split(".")[0], name)
+    new_name = sub(compile(r"[<>:\"/\\|?*]"), "", new_name)
+    new_name = new_name.replace(" ", "_")
+    new_name = source.replace(source.split("\\")[-1], new_name)
+    with open(source_file, "rb") as f:
+        with open(new_name, "wb") as f2:
+            f2.write(f.read())
+            f2.close()
+        f.close()
+    remove(source_file)
 
 class Background(QThread):
 
@@ -21,9 +37,15 @@ class Background(QThread):
         if self.search:
             info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
             text = info['entries'][0]['webpage_url']
+            name = info['entries'][0]['title']
+            file_name = ydl.prepare_filename(info)
             ydl.download([text])
+            rename_file(file_name, name)
         else:
+            info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
+            file_name = ydl.prepare_filename(info)
             ydl.download([self.url])
+            rename_file(file_name, info['title'])
 
 
 class MainUI(QMainWindow):
