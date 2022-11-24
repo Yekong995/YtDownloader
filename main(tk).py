@@ -3,8 +3,8 @@ from platform import system
 from tkinter.messagebox import showerror
 from os import remove
 from re import sub, compile
+from multiprocessing import Process
 import customtkinter
-import multiprocessing
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
@@ -82,7 +82,7 @@ def thread_download(url, ytdl_opts, search=False):
         only_audio = True
     else:
         only_audio = False
-    p = multiprocessing.Process(target=download, args=(url, ytdl_opts, search, only_audio))
+    p = Process(target=download, args=(url, ytdl_opts, search, only_audio))
     p.start()
 
     btn_down_search.configure(state="disabled")

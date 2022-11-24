@@ -6,3 +6,4 @@ dist/
 setup.py
 virtual/
 test.py
+setup(tk).py
