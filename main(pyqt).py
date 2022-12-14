@@ -38,7 +38,7 @@ class Background(QThread):
             info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
             text = info['entries'][0]['webpage_url']
             name = info['entries'][0]['title']
-            file_name = ydl.prepare_filename(info)
+            file_name = ydl.prepare_filename(info['entries'][0])
             ydl.download([text])
             rename_file(file_name, name)
         else:
@@ -71,15 +71,34 @@ class MainUI(QMainWindow):
             'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
             'merge_output_format': 'mp3'
         }
+        self.ytdl_format_options_login = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(title)s.%(ext)s',
+            'restrictfilenames': True,
+            'noplaylist': True,
+            'nocheckcertificate': True,
+            'ignoreerrors': False,
+            'logtostderr': False,
+            'quiet': True,
+            'no_warnings': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
+            'merge_output_format': 'mp3',
+            'username': 'username',
+            'password': 'password'
+        }
         if user_os == "Windows":
             from os import environ
             self.ytdl_format_options['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
         elif user_os == "Linux":
             from os.path import expanduser
             self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
         else:
             from os.path import expanduser
             self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
             QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
 
     def download(self):
@@ -90,12 +109,27 @@ class MainUI(QMainWindow):
         else:
             self.ui.progressBar.setValue(5)
             if audio:
-                self.ytdl_format_options['format'] = 'bestaudio/best'
-                self.ytdl_format_options['merge_output_format'] = 'mp3'
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp3'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp3'
             else:
-                self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
-                self.ytdl_format_options['merge_output_format'] = 'mp4'
-            self.worker = Background(text_ls, self.ytdl_format_options)
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp4'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp4'
+            if self.check_login():
+                self.worker = Background(text_ls, self.ytdl_format_options_login)
+            else:
+                self.worker = Background(text_ls, self.ytdl_format_options)
             self.ui.progressBar.setValue(10)
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
@@ -104,6 +138,8 @@ class MainUI(QMainWindow):
             self.ui.audioCheck.setDisabled(True)
             self.ui.downBtn.setDisabled(True)
             self.ui.dsBtn.setDisabled(True)
+            self.ui.mail.setDisabled(True)
+            self.ui.password.setDisabled(True)
             self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
@@ -115,12 +151,27 @@ class MainUI(QMainWindow):
         else:
             self.ui.progressBar.setValue(5)
             if audio:
-                self.ytdl_format_options['format'] = 'bestaudio/best'
-                self.ytdl_format_options['merge_output_format'] = 'mp3'
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp3'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp3'
             else:
-                self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
-                self.ytdl_format_options['merge_output_format'] = 'mp4'
-            self.worker = Background(text_ls, self.ytdl_format_options, search=True)
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp4'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp4'
+            if self.check_login():
+                self.worker = Background(text_ls, self.ytdl_format_options_login, search=True)
+            else:
+                self.worker = Background(text_ls, self.ytdl_format_options, search=True)
             self.ui.progressBar.setValue(10)
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
@@ -129,6 +180,8 @@ class MainUI(QMainWindow):
             self.ui.audioCheck.setDisabled(True)
             self.ui.downBtn.setDisabled(True)
             self.ui.dsBtn.setDisabled(True)
+            self.ui.mail.setDisabled(True)
+            self.ui.password.setDisabled(True)
             self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
@@ -139,7 +192,17 @@ class MainUI(QMainWindow):
         self.ui.audioCheck.setDisabled(False)
         self.ui.downBtn.setDisabled(False)
         self.ui.dsBtn.setDisabled(False)
+        self.ui.mail.setDisabled(False)
+        self.ui.password.setDisabled(False)
         self.ui.progressBar.setValue(0)
+
+    def check_login(self):
+        mail = self.ui.mail.text()
+        password = self.ui.password.text()
+        if mail == "" or password == "":
+            return False
+        else:
+            return True
 
 
 if __name__ == "__main__":
