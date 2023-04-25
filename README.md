@@ -1,6 +1,6 @@
 # YtDownloader
 
-> ** Library `youtube-dl` have problem and can't use **
+> **Library `youtube-dl` have problem and can't use**
 
 - [Installation (Terminal)](#Installation-Terminal)
 - [Installation (Gui)](#Installation-Gui)
