@@ -1,5 +1,5 @@
 from youtube_dl import YoutubeDL
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog
 from sys import argv, exit
 from os import remove
 from gui import Ui_MainWindow
@@ -94,17 +94,20 @@ class MainUI(QMainWindow):
         }
         if user_os == "Windows":
             from os import environ
-            self.ytdl_format_options['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
-            self.ytdl_format_options_login['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
+            self.path = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
         elif user_os == "Linux":
             from os.path import expanduser
-            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
-            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.path = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
         else:
             from os.path import expanduser
-            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
-            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.path = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
             QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
+
+        self.ui.path.setText(self.path)
+        self.ui.path.setDisabled(True)
+
+        self.ytdl_format_options['outtmpl'] = self.path
+        self.ytdl_format_options_login['outtmpl'] = self.path
 
     def download(self):
         audio = self.ui.audioCheck.isChecked()
@@ -202,6 +205,15 @@ class MainUI(QMainWindow):
             return False
         else:
             return True
+        
+    def change_path(self):
+        self.path = QFileDialog.getExistingDirectory(self, "Select Directory", self.path)
+        self.path = self.path.replace("/", "\\")
+        self.path += '\\%(title)s.%(ext)s'
+        self.ui.path.setText(self.path)
+        self.ytdl_format_options['outtmpl'] = self.path
+        self.ytdl_format_options_login['outtmpl'] = self.path
+        QMessageBox.information(self, "Path", "Path changed to " + self.path)
 
 
 if __name__ == "__main__":
