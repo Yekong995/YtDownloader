@@ -23,13 +23,21 @@ def rename_file(source:str, name:str):
 
 class Background(QThread):
 
-    def __init__(self, url, ytdl_opts, search=False) -> None:
+    def __init__(self, url, ytdl_opts, main_ui, search=False) -> None:
         QThread.__init__(self)
         self.ytdl_opts = ytdl_opts
         self.url = url
         self.search = search
+        self.ui = main_ui
+
+    def UpdateProgressBar(self, d):
+        if d['status'] == 'finished':
+            self.ui.progressBar.setValue(100)
+        elif d['status'] == 'downloading':
+            self.ui.progressBar.setValue(round(float(d['_percent_str'].replace('%', ''))))
 
     def run(self) -> None:
+        self.ytdl_opts['progress_hooks'] = [self.UpdateProgressBar]
         ydl = YoutubeDL(self.ytdl_opts)
         if self.search:
             info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
@@ -104,7 +112,6 @@ class MainUI(QMainWindow):
         if text_ls == "":
             QMessageBox.critical(self, "Error", "Please input a link or string")
         else:
-            self.ui.progressBar.setValue(5)
             if audio:
                 if self.check_login():
                     self.ytdl_format_options_login['format'] = 'bestaudio/best'
@@ -124,10 +131,9 @@ class MainUI(QMainWindow):
                     self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
                     self.ytdl_format_options['merge_output_format'] = 'mp4'
             if self.check_login():
-                self.worker = Background(text_ls, self.ytdl_format_options_login)
+                self.worker = Background(text_ls, self.ytdl_format_options_login, self.ui)
             else:
-                self.worker = Background(text_ls, self.ytdl_format_options)
-            self.ui.progressBar.setValue(10)
+                self.worker = Background(text_ls, self.ytdl_format_options, self.ui)
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
             self.ui.progressBar.setValue(15)
@@ -137,7 +143,6 @@ class MainUI(QMainWindow):
             self.ui.dsBtn.setDisabled(True)
             self.ui.mail.setDisabled(True)
             self.ui.password.setDisabled(True)
-            self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
     def search(self):
@@ -146,7 +151,6 @@ class MainUI(QMainWindow):
         if text_ls == "":
             QMessageBox.critical(self, "Error", "Please input a link or string")
         else:
-            self.ui.progressBar.setValue(5)
             if audio:
                 if self.check_login():
                     self.ytdl_format_options_login['format'] = 'bestaudio/best'
@@ -166,10 +170,9 @@ class MainUI(QMainWindow):
                     self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
                     self.ytdl_format_options['merge_output_format'] = 'mp4'
             if self.check_login():
-                self.worker = Background(text_ls, self.ytdl_format_options_login, search=True)
+                self.worker = Background(text_ls, self.ytdl_format_options_login, self.ui, search=True)
             else:
-                self.worker = Background(text_ls, self.ytdl_format_options, search=True)
-            self.ui.progressBar.setValue(10)
+                self.worker = Background(text_ls, self.ytdl_format_options, self.ui, search=True)
             QMessageBox.information(self, "Download", "Download started")
             self.worker.start()
             self.ui.progressBar.setValue(15)
@@ -179,7 +182,6 @@ class MainUI(QMainWindow):
             self.ui.dsBtn.setDisabled(True)
             self.ui.mail.setDisabled(True)
             self.ui.password.setDisabled(True)
-            self.ui.progressBar.setValue(20)
             self.worker.finished.connect(self.download_finished)
 
     def download_finished(self):
