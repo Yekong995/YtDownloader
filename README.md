@@ -1,126 +1,38 @@
 # YtDownloader
 
-> **Library `youtube-dl` have problem and can't use**
-
-- [Installation (Terminal)](#Installation-Terminal)
-- [Installation (Gui)](#Installation-Gui)
-
-## Installation (Terminal)
-
-- [Linux](#Linux)
-
-- [Windows](#Windows)
-
-### Linux
-
-Requirements:
-
-| Tool    | Command                           |
-| ------- | --------------------------------- |
-| Python3 | `sudo apt install python3 -y`     |
-| pip3    | `sudo apt install python3-pip -y` |
+> Terminal mode remove as you can use youtube-dl directly in terminal
 
 
 
-Package:
+## Usage
 
-| Package    | Command |
-| ---------- | --------------- |
-| youtube-dl | `pip3 install --upgrade youtube-dl` |
-| loguru     | `pip3 install --upgrade loguru` |
-
-
-
-Run:
+**Using pipenv**
 
 ```bash
-git clone https://github.com/Yekong995/YtDownloader.git
-cd YtDownloader
-python3 main.py
+pip install pipenv
 ```
 
-### Windows
-
-Requirements:
-
-| Tool             | Link                                                  |
-| ---------------- | ----------------------------------------------------- |
-| Python3.8+ & pip | [Link to download](https://www.python.org/downloads/) |
-
-Please tick this option before continue install python:
-
-![install_option](Image/py_install.png)
-
-After tick `Add python.exe to PATH` press `Install Now` or `Customize installation`
-
-> **NOTE: If you chose `Customize installation` make sure you have install pip**
-
-
-
-Package:
-
-| Package    | Command                            |
-| ---------- | ---------------------------------- |
-| youtube-dl | `pip install --upgrade youtube-dl` |
-| loguru     | `pip install --upgrade loguru`     |
-
-
-
-Run:
-
-```bash
-git clone https://github.com/Yekong995/YtDownloader.git
-cd YtDownloader
-python main.py
-```
+[How to use pipenv](#PIPENV)
 
 or
 
 ```bash
-git clone https://github.com/Yekong995/YtDownloader.git
-cd YtDownloader
-py main.py
+pip install -r requirements.txt
 ```
 
-## Installation (Gui)
-
-### Windows
-
-Requirements:
-
-You can refer to [here](#Installation-terminal) (Requirements)
 
 
+### PIPENV
 
-Package:
-
-You can also refer to [here](#Installation-Terminal) (Package)
-
-> **NOTE: Package `loguru` can ignore**
-
-
-
-New Package:
-
-| Package | Command                       |
-| ------- | ----------------------------- |
-| PyQt5   | `pip install --upgrade pyqt5` |
-
-
-
-Run:
-
-```bash	
-git clone https://github.com/Yekong995/YtDownloader.git
-cd YtDownloader
-python main(pyqt).py
-```
-
-or
+Using this two command two install depencies
 
 ```bash
-git clone https://github.com/Yekong995/YtDownloader.git
-cd YtDownloader
-py main(pyqt).py
+pipenv lock
+pipenv sync
 ```
 
+Run it by using `pipenv shell` or `pipenv run`
+
+`shell`: Spawn a virtual environment shell
+
+`run`: Run command in virtual environment
