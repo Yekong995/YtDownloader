@@ -1,115 +1,211 @@
 from youtube_dl import YoutubeDL
-from pathlib import Path
-from loguru import logger as log
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from sys import argv, exit
 from os import remove
-from re import sub, compile
-import asyncio
-import platform
+from gui import Ui_MainWindow
+from platform import system
+from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QIcon
 
-ytdl_format_options = {
-    'format': 'bestaudio/best',
-    'outtmpl': '%(title)s.%(ext)s',
-    'restrictfilenames': True,
-    'noplaylist': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'quiet': True,
-    'no_warnings': True,
-    'default_search': 'auto',
-    'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
-    'merge_output_format': 'mp3'
-}
+user_os = system()
 
-if platform.system() == "Windows":
-    from os import environ
-    ytdl_format_options['outtmpl'] = environ['USERPROFILE'] + '\\Downloads\\' + '%(title)s.%(ext)s'
-elif platform.system() == "Linux":
-    from os.path import expanduser
-    ytdl_format_options['outtmpl'] = expanduser('~') + '/Downloads/' + '%(title)s.%(ext)s'
-else:
-    from os.path import expanduser
-    log.warning('Cannot determine OS, defaulting to Linux')
-    ytdl_format_options['outtmpl'] = expanduser('~') + '/Downloads/' + '%(title)s.%(ext)s'
-
-async def rename_file(source:str, name:str):
-    log.info(f"Renaming {source} to {name}")
+def rename_file(source:str, name:str):
     source_file = source
-    new_name = source.split("\\")[-1]
-    new_name = new_name.replace(new_name.split(".")[0], name)
+    ext = source.split(".")[-1]
+    new_name = name + "." + ext
     new_name = source.replace(source.split("\\")[-1], new_name)
-    with open(source_file, 'rb') as f:
-        with open(new_name, 'wb') as f1:
-            f1.write(f.read())
-            f1.close()
+    with open(source_file, "rb") as f:
+        with open(new_name, "wb") as f2:
+            f2.write(f.read())
+            f2.close()
         f.close()
     remove(source_file)
 
-async def download(url, audio_only=False):
-    if url == "":
-        log.critical("No link provided")
-        return
-    else:
-        if audio_only:
-            ytdl_format_options['format'] = 'bestaudio/best'
-            ytdl_format_options['merge_output_format'] = 'mp3'
-        else:
-            ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
-            ytdl_format_options['merge_output_format'] = 'mp4'
-        ytdl = YoutubeDL(ytdl_format_options)
-        info = ytdl.extract_info(url, download=False)
-        filename = ytdl.prepare_filename(info)
-        name = sub(compile(r"[^\w\s]"), "", info['title'])
-        log.info(f"Downloading {filename}")
-        if Path(filename).exists():
-            log.warning(f"File {filename} already exists")
-            return
-        else:
-            ytdl.download([url])
-        log.info(f"Done downloading {filename}")
-        await rename_file(filename, name)
-        log.info(f"Done renaming {filename}")
+class Background(QThread):
 
-async def search(name, mode='m'):
-    ytdl = YoutubeDL(ytdl_format_options)
-    info = ytdl.extract_info(f"ytsearch:{name}", download=False)['entries'][0]
-    log.info(f"Found: {info['title']}")
-    if mode == 'm':
-        await download(info['webpage_url'], audio_only=True)
-    elif mode == 'v':
-        await download(info['webpage_url'])
-    else:
-        log.critical("Invalid mode")
-        return
+    def __init__(self, url, ytdl_opts, main_ui, search=False) -> None:
+        QThread.__init__(self)
+        self.ytdl_opts = ytdl_opts
+        self.url = url
+        self.search = search
+        self.ui = main_ui
 
-async def main():
-    while True:
-        print("""
-[1] Download music
-[2] Download video
-[3] Search & Download
-[Q] Quit
-        """)
-        choice = input("Enter the option: ")
-        if choice == "1":
-            link = input("Enter the link: ")
-            await download(link, audio_only=True)
-        elif choice == "2":
-            link = input("Enter the link: ")
-            await download(link)
-        elif choice == "3":
-            name = input("Enter the name: ")
-            m3orm4 = input("Do you want to download music or video? (m/v): ")
-            await search(name, mode=m3orm4)
-        elif choice == "Q" or choice == "q":
-            loop.stop()
-            break
+    def UpdateProgressBar(self, d):
+        if d['status'] == 'finished':
+            self.ui.progressBar.setValue(100)
+        elif d['status'] == 'downloading':
+            self.ui.progressBar.setValue(round(float(d['_percent_str'].replace('%', ''))))
+
+    def run(self) -> None:
+        self.ytdl_opts['progress_hooks'] = [self.UpdateProgressBar]
+        ydl = YoutubeDL(self.ytdl_opts)
+        if self.search:
+            info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
+            text = info['entries'][0]['webpage_url']
+            name = info['entries'][0]['title']
+            file_name = ydl.prepare_filename(info['entries'][0])
+            ydl.download([text])
+            rename_file(file_name, name)
         else:
-            log.critical("Invalid option")
-            continue
+            info = YoutubeDL(self.ytdl_opts).extract_info(self.url, download=False)
+            file_name = ydl.prepare_filename(info)
+            ydl.download([self.url])
+            rename_file(file_name, info['title'])
+
+
+class MainUI(QMainWindow):
+
+    def __init__(self):
+        super(QMainWindow, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.setWindowTitle("YtDownloader")
+        self.setFixedSize(self.size())
+        self.setWindowIcon(QIcon("App.ico"))
+        self.ytdl_format_options = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(title)s.%(ext)s',
+            'restrictfilenames': True,
+            'noplaylist': True,
+            'nocheckcertificate': True,
+            'ignoreerrors': False,
+            'logtostderr': False,
+            'quiet': True,
+            'no_warnings': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
+            'merge_output_format': 'mp3'
+        }
+        self.ytdl_format_options_login = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(title)s.%(ext)s',
+            'restrictfilenames': True,
+            'noplaylist': True,
+            'nocheckcertificate': True,
+            'ignoreerrors': False,
+            'logtostderr': False,
+            'quiet': True,
+            'no_warnings': True,
+            'default_search': 'auto',
+            'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
+            'merge_output_format': 'mp3',
+            'username': 'username',
+            'password': 'password'
+        }
+        if user_os == "Windows":
+            from os import environ
+            self.ytdl_format_options['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
+        elif user_os == "Linux":
+            from os.path import expanduser
+            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+        else:
+            from os.path import expanduser
+            self.ytdl_format_options['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            self.ytdl_format_options_login['outtmpl'] = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+            QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
+
+    def download(self):
+        audio = self.ui.audioCheck.isChecked()
+        text_ls = self.ui.text.text()
+        if text_ls == "":
+            QMessageBox.critical(self, "Error", "Please input a link or string")
+        else:
+            if audio:
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp3'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp3'
+            else:
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp4'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp4'
+            if self.check_login():
+                self.worker = Background(text_ls, self.ytdl_format_options_login, self.ui)
+            else:
+                self.worker = Background(text_ls, self.ytdl_format_options, self.ui)
+            QMessageBox.information(self, "Download", "Download started")
+            self.worker.start()
+            self.ui.progressBar.setValue(15)
+            self.ui.text.setDisabled(True)
+            self.ui.audioCheck.setDisabled(True)
+            self.ui.downBtn.setDisabled(True)
+            self.ui.dsBtn.setDisabled(True)
+            self.ui.mail.setDisabled(True)
+            self.ui.password.setDisabled(True)
+            self.worker.finished.connect(self.download_finished)
+
+    def search(self):
+        audio = self.ui.audioCheck.isChecked()
+        text_ls = self.ui.text.text()
+        if text_ls == "":
+            QMessageBox.critical(self, "Error", "Please input a link or string")
+        else:
+            if audio:
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp3'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp3'
+            else:
+                if self.check_login():
+                    self.ytdl_format_options_login['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options_login['merge_output_format'] = 'mp4'
+                    self.ytdl_format_options_login['username'] = self.ui.mail.text()
+                    self.ytdl_format_options_login['password'] = self.ui.password.text()
+                else:
+                    self.ytdl_format_options['format'] = 'bestvideo+bestaudio/best'
+                    self.ytdl_format_options['merge_output_format'] = 'mp4'
+            if self.check_login():
+                self.worker = Background(text_ls, self.ytdl_format_options_login, self.ui, search=True)
+            else:
+                self.worker = Background(text_ls, self.ytdl_format_options, self.ui, search=True)
+            QMessageBox.information(self, "Download", "Download started")
+            self.worker.start()
+            self.ui.progressBar.setValue(15)
+            self.ui.text.setDisabled(True)
+            self.ui.audioCheck.setDisabled(True)
+            self.ui.downBtn.setDisabled(True)
+            self.ui.dsBtn.setDisabled(True)
+            self.ui.mail.setDisabled(True)
+            self.ui.password.setDisabled(True)
+            self.worker.finished.connect(self.download_finished)
+
+    def download_finished(self):
+        self.ui.progressBar.setValue(100)
+        QMessageBox.information(self, "Download", "Download completed")
+        self.ui.text.setDisabled(False)
+        self.ui.audioCheck.setDisabled(False)
+        self.ui.downBtn.setDisabled(False)
+        self.ui.dsBtn.setDisabled(False)
+        self.ui.mail.setDisabled(False)
+        self.ui.password.setDisabled(False)
+        self.ui.progressBar.setValue(0)
+
+    def check_login(self):
+        mail = self.ui.mail.text()
+        password = self.ui.password.text()
+        if mail == "" or password == "":
+            return False
+        else:
+            return True
+
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    future = asyncio.ensure_future(main(), loop=loop)
-    loop.run_until_complete(future)
+    app = QApplication(argv)
+    window = MainUI()
+    window.show()
+    exit(app.exec_())
