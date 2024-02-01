@@ -1,7 +1,6 @@
 from youtube_dl import YoutubeDL
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 from sys import argv, exit
-from re import sub, compile
 from os import remove
 from gui import Ui_MainWindow
 from platform import system
@@ -12,10 +11,8 @@ user_os = system()
 
 def rename_file(source:str, name:str):
     source_file = source
-    new_name = source.split("\\")[-1]
-    new_name = new_name.replace(new_name.split(".")[0], name)
-    new_name = sub(compile(r"[<>:\"/\\|?*]"), "", new_name)
-    new_name = new_name.replace(" ", "_")
+    ext = source.split(".")[-1]
+    new_name = name + "." + ext
     new_name = source.replace(source.split("\\")[-1], new_name)
     with open(source_file, "rb") as f:
         with open(new_name, "wb") as f2:
