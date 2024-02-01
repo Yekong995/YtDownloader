@@ -6,4 +6,3 @@ dist/
 setup.py
 virtual/
 test.py
-Makefile
