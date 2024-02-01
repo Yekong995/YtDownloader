@@ -1,0 +1,5 @@
+-i https://pypi.org/simple
+pyqt5==5.15.10
+pyqt5-qt5==5.15.2
+pyqt5-sip==12.13.0; python_version >= '3.7'
+youtube-dl @ git+https://github.com/ytdl-org/ytdl-nightly.git@20c831d037dc4bd91da05b1ac293e86c315e9c8d
