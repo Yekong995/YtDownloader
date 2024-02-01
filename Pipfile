@@ -7,3 +7,6 @@ name = "pypi"
 youtube_dl = {git = "https://github.com/ytdl-org/ytdl-nightly.git", ref = "2024.01.23", editable = true}
 loguru = ">=0.5.3"
 PyQt5 = ">=5.15.4"
+
+[dev-packages]
+cx_Freeze = ">=6.15.0"
