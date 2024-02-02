@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>548</width>
+    <width>338</width>
     <height>224</height>
    </rect>
   </property>
@@ -82,60 +82,12 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QLineEdit" name="mail">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>20</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="placeholderText">
-     <string>Mail (Optional)</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="password">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>60</y>
-      <width>151</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="inputMask">
-     <string/>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="echoMode">
-     <enum>QLineEdit::Password</enum>
-    </property>
-    <property name="placeholderText">
-     <string>Password (Optional)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>110</y>
-      <width>171</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>NOTE: No 2 step verification</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="path">
     <property name="geometry">
      <rect>
       <x>30</x>
       <y>190</y>
-      <width>461</width>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
@@ -143,7 +95,7 @@
    <widget class="QToolButton" name="pathBtn">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>290</x>
       <y>190</y>
       <width>31</width>
       <height>21</height>
