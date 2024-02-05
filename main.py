@@ -2,11 +2,13 @@ from youtube_dl import YoutubeDL
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog
 from sys import argv, exit
 from os import remove
+from os.path import exists
 from gui import Ui_MainWindow
 from platform import system
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QIcon
 from re import compile
+import configparser
 
 user_os = system()
 
@@ -80,20 +82,30 @@ class MainUI(QMainWindow):
             'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
             'merge_output_format': 'mp3'
         }
-        if user_os == "Windows":
-            from os import environ
-            self.path = environ["USERPROFILE"] + '\\Downloads\\' + '%(title)s.%(ext)s'
-        elif user_os == "Linux":
-            from os.path import expanduser
-            self.path = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
+
+        if exists("config.ini"):
+            config = configparser.ConfigParser()
+            config.read("config.ini")
+            self.path = config['SETTINGS']['path']
         else:
-            from os.path import expanduser
-            self.path = expanduser("~") + '/Downloads/' + '%(title)s.%(ext)s'
-            QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
+            with open("config.ini", "w") as f:
+                if user_os == "Windows":
+                    from os import environ
+                    self.path = environ["USERPROFILE"] + '\\Downloads\\'
+                elif user_os == "Linux":
+                    from os.path import expanduser
+                    self.path = expanduser("~") + '/Downloads/'
+                else:
+                    from os.path import expanduser
+                    self.path = expanduser("~") + '/Downloads/'
+                    QMessageBox.warning(self, "Warning", "Cannot determine OS, defaulting to Linux")
+                f.write("[SETTINGS]\npath=" + self.path)
+                f.close()
 
         self.ui.path.setText(self.path)
         self.ui.path.setDisabled(True)
 
+        self.path += '%(title)s.%(ext)s'
         self.ytdl_format_options['outtmpl'] = self.path
 
     def download(self):
@@ -157,10 +169,18 @@ class MainUI(QMainWindow):
     def change_path(self):
         self.path = QFileDialog.getExistingDirectory(self, "Select Directory", self.path)
         self.path = self.path.replace("/", "\\")
-        self.path += '\\%(title)s.%(ext)s'
         self.ui.path.setText(self.path)
-        self.ytdl_format_options['outtmpl'] = self.path
+
+        config = configparser.ConfigParser()
+        config.read("config.ini")
+        config['SETTINGS']['path'] = self.path
+        with open("config.ini", "w") as f:
+            config.write(f)
+        
         QMessageBox.information(self, "Path", "Path changed to " + self.path)
+
+        self.path += '%(title)s.%(ext)s'
+        self.ytdl_format_options['outtmpl'] = self.path
 
 
 if __name__ == "__main__":
