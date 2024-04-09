@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e289b477b66f7118275f4c1c88644491fc62ac67a87d472ba8ae202c6c4b05da"
+            "sha256": "36b586c33a943032e3e4c308a942cb9aae8c3f7a82c6fa279db55528a42fbdfd"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -65,7 +65,7 @@
         "youtube-dl": {
             "editable": true,
             "git": "https://github.com/ytdl-org/ytdl-nightly.git",
-            "ref": "20c831d037dc4bd91da05b1ac293e86c315e9c8d"
+            "ref": "c942b7bd4b64ddea5cce80fd35cadcccba35847b"
         }
     },
     "develop": {}
