@@ -2,4 +2,4 @@
 pyqt5==5.15.10
 pyqt5-qt5==5.15.2
 pyqt5-sip==12.13.0; python_version >= '3.7'
-youtube-dl @ git+https://github.com/ytdl-org/ytdl-nightly.git@c942b7bd4b64ddea5cce80fd35cadcccba35847b
+youtube-dl @ git+https://github.com/ytdl-org/ytdl-nightly.git@aefc38e78f7e798191b3313049bf726afd9e0648
