@@ -4,5 +4,5 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-youtube_dl = {git = "https://github.com/ytdl-org/ytdl-nightly.git", ref = "2024.04.08", editable = true}
+youtube_dl = {git = "https://github.com/ytdl-org/ytdl-nightly.git", ref = "2024.04.22", editable = true}
 PyQt5 = ">=5.15.4"
